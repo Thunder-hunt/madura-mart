@@ -14,9 +14,6 @@
                 <h6 class="font-weight-bolder mb-0">{{ $title }}</h6>
             </nav>
             <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-                {{-- <div class="d-flex align-items-center">
-                    <a href="{{ route('distributor.create') }}" class="btn bg-gradient-dark w-100 my-4 mb-4"> Add new Distributor</a>
-                <div> --}}
                 <div class="ms-md-auto pe-md-3 d-flex align-items-center">
                     <div class="input-group">
                         <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
@@ -24,6 +21,10 @@
                     </div>
                 </div>
                 <ul class="navbar-nav  justify-content-end">
+                    <li class="nav-item d-flex align-items-center">
+                        <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank"
+                            href="https://www.creative-tim.com/builder?ref=navbar-soft-ui-dashboard">Online Builder</a>
+                    </li>
                     <li class="nav-item d-flex align-items-center">
                         <a href="javascript:;" class="nav-link text-body font-weight-bold px-0">
                             <i class="fa fa-user me-sm-1"></i>
@@ -140,42 +141,47 @@
                 <div class="col-12">
                     <div class="card mb-4">
                         <div class="card-header pb-0">
-                            <h6>Add New {{ $title }} Data</h6>
+                            <h6>Edit {{ $title }} Data</h6>
                         </div>
                         <div class="card-body px-0 pt-0 pb-2">
-                            <form action="{{ route('products.store') }}" method="POST" id="frm" enctype="multipart/form-data">
+                            <form action="{{ route('products.update', $data->id) }}" method="POST" id="frm" enctype="multipart/form-data">
                                 @csrf
+                                @method('PUT')
                                 <div class="row ms-3 me-3">
                                     <div class="col-lg-6 col-md-6">
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="kd_barang" class="form-label">Code</label>
-                                            <input type="text" class="form-control" id="kd_barang" name="kd_barang" placeholder="Enter Product Code" value="{{ old('kd_barang') }}" maxlength="15">
+                                            <input type="text" class="form-control" id="kd_barang" name="kd_barang" placeholder="Enter Product Code" value="{{ $data->kd_barang }}" maxlength="15">
                                         </div>
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="nama_barang" class="form-label">Name</label>
-                                            <input type="text" class="form-control" id="nama_barang" name="nama_barang" placeholder="Enter Product Name" value="{{ old('nama_barang') }}" maxlength="50">
+                                            <input type="text" class="form-control" id="nama_barang" name="nama_barang" placeholder="Enter Product Name" value="{{ $data->nama_barang }}" maxlength="50">
                                         </div>
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="jenis_barang" class="form-label">Type</label>
-                                            <input type="text" class="form-control" id="jenis_barang" name="jenis_barang" placeholder="Enter Product Type" value="{{ old('jenis_barang') }}" maxlength="50">
+                                            <input type="text" class="form-control" id="jenis_barang" name="jenis_barang" placeholder="Enter Product Type" value="{{ $data->jenis_barang }}" maxlength="50">
                                         </div>
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="tgl_expired" class="form-label">Expired Date</label>
-                                            <input type="date" class="form-control" id="tgl_expired" name="tgl_expired" placeholder="Enter Expired Date" value="{{ old('tgl_expired') }}">
+                                            <input type="date" class="form-control" id="tgl_expired" name="tgl_expired" placeholder="Enter Expired Date" value="{{ $data->tgl_expired }}">
                                         </div>
                                     </div>
                                     <div class="col-lg-6 col-md-6">
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="harga_jual" class="form-label">Price</label>
-                                            <input type="text" class="form-control" id="harga_jual" name="harga_jual" placeholder="Enter Product Price" value="{{ old('harga_jual') ?? 0 }}">
+                                            <input type="text" class="form-control" id="harga_jual" name="harga_jual" placeholder="Enter Product Price" value="{{ $data->harga_jual }}">
                                         </div>
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="stok" class="form-label">Stock</label>
-                                            <input type="text" class="form-control" id="stok" name="stok" placeholder="Enter Product Stock" value="{{ old('stok') ?? 0 }}">
+                                            <input type="text" class="form-control" id="stok" name="stok" placeholder="Enter Product Stock" value="{{ $data->stok }}">
                                         </div>
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="foto_barang" class="form-label">Image</label>
                                             <input type="file" class="form-control" id="foto_barang" name="foto_barang" placeholder="Enter Product Image" value="{{ old('foto_barang') }}">
+                                            @if ($data->foto_barang)
+                                                <small class="text-muted d-block mt-2">Current Image:</small>
+                                                <img src="{{ asset('storage/' . $data->foto_barang) }}" alt="Current Image" width="100" class="mt-2">
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -183,7 +189,7 @@
                                     <div class="col-12">
                                         <div class="px-3 pb-3 text-end">
                                             <a href="{{ route('products.index') }}" class="btn bg-gradient-secondary me-3">Cancel</a>
-                                            <button type="button" id="simpan" class="btn bg-gradient-primary"> Save New {{ $title }} Data </button>
+                                            <button type="button" id="simpan" class="btn bg-gradient-primary"> Update {{ $title }} Data </button>
                                         </div>
                                     </div>
                                 </div>
@@ -238,9 +244,6 @@
                 let nama_barang = document.getElementById('nama_barang');
                 let jenis_barang = document.getElementById('jenis_barang');
                 let tgl_expired = document.getElementById('tgl_expired');
-                let harga_jual = document.getElementById('harga_jual');
-                let stok = document.getElementById('stok');
-                let foto_barang = document.getElementById('foto_barang');
 
                 btnSimpan.addEventListener('click', function() {
                     
@@ -264,19 +267,10 @@
                         swal("Invalid!", "Expired Date cannot be empty", "error");
                         return;
                     }
-                    else if(foto_barang.value.trim() === ''){
-                        foto_barang.focus();
-                        swal("Invalid!", "Product Image cannot be empty", "error");
-                        return;
-                    }
                     else{
                         frm.submit();
                     }
                 });
-
-                @if (session('duplikat'))
-                    swal('Duplicated Data', '{{ session('duplikat') }}', 'error');
-                @endif
             </script>
         </div>
     @endsection

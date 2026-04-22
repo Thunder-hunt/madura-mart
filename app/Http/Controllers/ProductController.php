@@ -45,7 +45,7 @@ class ProductController extends Controller
             return redirect()->route('products.create')->with('duplikat', 'Product ' . $request->nama_barang . ' data with name ' . $request->nama_barang . ' is already in the database!')->withInput();
         }else{
             $data = $request->all();
-            $data['foto_barang'] = $request->file('foto_barang')->store('product-images');
+            $data['foto_barang'] = $request->file('foto_barang')->store('product-images', 'public');
             Product::create($data);
             return redirect()->route('products.index')->with('simpan', 'The New Product data, ' . $request->nama_barang . ' has been successfully added to the database!');
         }
@@ -64,7 +64,11 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $data = Product::find($id);
+        return view('products.edit', [
+            'title' => 'Products',
+            'data' => $data
+        ]);
     }
 
     /**
@@ -72,7 +76,17 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $data = Product::find($id);
+        $updateData = $request->all();
+
+        if ($request->hasFile('foto_barang')) {
+            $updateData['foto_barang'] = $request->file('foto_barang')->store('product-images', 'public');
+        } else {
+            unset($updateData['foto_barang']);
+        }
+
+        $data->update($updateData);
+        return redirect()->route('products.index')->with('simpan', 'The Product data, ' . $request->nama_barang . ' has been successfully updated!');
     }
 
     /**

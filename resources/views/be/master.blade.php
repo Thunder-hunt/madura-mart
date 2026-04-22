@@ -49,7 +49,7 @@
                 aria-hidden="true" id="iconSidenav"></i>
             <a class="navbar-brand m-0" href=" https://demos.creative-tim.com/soft-ui-dashboard/pages/dashboard.html "
                 target="_blank">
-                <img src="{{ asset('be/assets/img/logo-ct-dark.png') }}" class="navbar-brand-img h-100" alt="main_logo">
+                <img src="{{ asset('image/michie-jkt48-michie-jeketi.gif') }}" class="navbar-brand-img h-100" alt="main_logo">
                 <span class="ms-1 font-weight-bold">MADURA Mart</span>
             </a>
         </div>
@@ -69,6 +69,24 @@
         @endif
         @if ($title === 'Products')
             @yield('products')
+        @endif
+        @if ($title === 'Clients')
+            @yield('clients')
+        @endif
+        @if ($title === 'Couriers')
+            @yield('couriers')
+        @endif
+        @if ($title === 'Users')
+            @yield('users')
+        @endif
+        @if ($title === 'Purchase')
+            @yield('purchase')
+        @endif
+        @if ($title === 'Sale')
+            @yield('sale')
+        @endif
+        @if ($title === 'Order')
+            @yield('order')
         @endif
     </main>
 
