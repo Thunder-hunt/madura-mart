@@ -157,7 +157,15 @@
                                         </div>
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="jenis_barang" class="form-label">Type</label>
-                                            <input type="text" class="form-control" id="jenis_barang" name="jenis_barang" placeholder="Enter Product Type" value="{{ old('jenis_barang') }}" maxlength="50">
+                                            <select class="form-control" id="jenis_barang" name="jenis_barang">
+                                                <option value="" disabled selected>Select Product Type</option>
+                                                <option value="Makanan" {{ old('jenis_barang') == 'Makanan' ? 'selected' : '' }}>Makanan</option>
+                                                <option value="Minuman" {{ old('jenis_barang') == 'Minuman' ? 'selected' : '' }}>Minuman</option>
+                                                <option value="Sembako" {{ old('jenis_barang') == 'Sembako' ? 'selected' : '' }}>Sembako</option>
+                                                <option value="Alat Tulis" {{ old('jenis_barang') == 'Alat Tulis' ? 'selected' : '' }}>Alat Tulis</option>
+                                                <option value="Rumah Tangga" {{ old('jenis_barang') == 'Rumah Tangga' ? 'selected' : '' }}>Rumah Tangga</option>
+                                                <option value="Lainnya" {{ old('jenis_barang') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                                            </select>
                                         </div>
                                         <div class="mb-3 px-3 pt-3">
                                             <label for="tgl_expired" class="form-label">Expired Date</label>
