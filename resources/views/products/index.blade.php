@@ -136,11 +136,11 @@
                                         <td class="text-center">
                                             <div class="d-flex justify-content-center gap-2">
                                                 <a href="{{ route('products.edit', $data->id) }}">
-                                                    <img src="{{ asset('be/assets/img/icon/edit.png') }}" width="18">
+                                                    <i class="fas fa-edit text-primary" style="font-size: 16px;" title="Edit"></i>
                                                 </a>
                                                 <a href="#" onclick="hapus(event, this)"
                                                 data-url="{{ route('products.destroy', $data->id) }}">
-                                                    <img src="{{ asset('be/assets/img/icon/trash.png') }}" width="18">
+                                                    <i class="fas fa-trash text-danger" style="font-size: 16px;" title="Delete"></i>
                                                 </a>
                                             </div>
                                         </td>
