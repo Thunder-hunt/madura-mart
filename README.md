@@ -1,8 +1,16 @@
-# 🛒 Madura Mart - School Project
+# 🛒 Madura Mart
 
-![Madura Mart Banner](./madura_mart_banner_1776825629263.png)
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" alt="Laravel" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL" />
+  <img src="https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white" alt="PHP" />
+</p>
 
-> **Madura Mart** adalah sebuah platform manajemen inventaris dan penjualan retail yang modern, dibangun khusus untuk memenuhi kebutuhan digitalisasi UMKM. Project ini dikembangkan sebagai tugas sekolah dengan fokus pada kemudahan penggunaan dan efisiensi manajemen data.
+---
+
+> **Madura Mart** adalah platform manajemen inventaris dan penjualan retail modern yang dirancang untuk digitalisasi UMKM. Project ini dikembangkan sebagai tugas sekolah dengan fokus pada efisiensi dan kemudahan navigasi.
 
 ---
 
