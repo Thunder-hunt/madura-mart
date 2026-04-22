@@ -61,31 +61,31 @@
 
     </aside>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
-        @if ($title === 'Dashboard')
+        @if (str_contains($title, 'Dashboard'))
             @yield('dashboard')
         @endif
-        @if ($title === 'Distributor')
+        @if (str_contains($title, 'Distributor'))
             @yield('distributor')
         @endif
-        @if ($title === 'Products')
+        @if (str_contains($title, 'Products'))
             @yield('products')
         @endif
-        @if ($title === 'Clients')
+        @if (str_contains($title, 'Clients'))
             @yield('clients')
         @endif
-        @if ($title === 'Couriers')
+        @if (str_contains($title, 'Couriers'))
             @yield('couriers')
         @endif
-        @if ($title === 'Users')
+        @if (str_contains($title, 'Users'))
             @yield('users')
         @endif
-        @if ($title === 'Purchase')
+        @if (str_contains($title, 'Purchase'))
             @yield('purchase')
         @endif
-        @if ($title === 'Sale')
+        @if (str_contains($title, 'Sale'))
             @yield('sale')
         @endif
-        @if ($title === 'Order')
+        @if (str_contains($title, 'Order'))
             @yield('order')
         @endif
     </main>
