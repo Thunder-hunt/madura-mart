@@ -45,13 +45,13 @@
                                             <td class="text-xs font-weight-bold mb-0 ps-4">{{ $nmr + 1 . '.' }}</td>
                                             <td class="text-xs font-weight-bold mb-0">
                                                 <a href="{{ route('purchase.show', $data->id) }}" class="me-2">
-                                                    <i class="fas fa-eye text-info" style="font-size: 16px;" title="Detail"></i>
+                                                    <img src="{{ asset('be/assets/img/icon/eye.png') }}" alt="show" width="20" title="Detail">
                                                 </a>
                                                 <form action="{{ route('purchase.destroy', $data->id) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="border-0 bg-transparent p-0" onclick="hapus(event, this)">
-                                                        <i class="fas fa-trash text-danger" style="font-size: 16px;" title="Delete"></i>
+                                                        <img src="{{ asset('be/assets/img/icon/trash.png') }}" alt="delete" width="20" title="Delete">
                                                     </button>
                                                 </form>
                                             </td>
