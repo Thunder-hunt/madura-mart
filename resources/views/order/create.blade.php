@@ -100,11 +100,12 @@
                                     </thead>
                                     <tbody id="itemBody">
                                         <tr>
-                                            <td class="p-2">
-                                                <select name="items[0][id_barang]" class="form-control form-control-sm product-select" required>
-                                                    <option value="" data-price="0">Select Product</option>
+                                            <td class="p-2 d-flex align-items-center">
+                                                <img src="" class="product-preview me-2 d-none" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                                <select name="items[0][id_barang]" class="form-control form-control-sm product-select w-100" required>
+                                                    <option value="" data-price="0" data-image="">Select Product</option>
                                                     @foreach($products as $p)
-                                                        <option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}">{{ $p->nama_barang }}</option>
+                                                        <option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}" data-image="{{ $p->foto_barang ? asset('storage/' . $p->foto_barang) : '' }}">{{ $p->nama_barang }}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
@@ -143,11 +144,12 @@
             let tbody = document.getElementById('itemBody');
             let tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="p-2">
-                    <select name="items[${rowIdx}][id_barang]" class="form-control form-control-sm product-select" required>
-                        <option value="" data-price="0">Select Product</option>
+                <td class="p-2 d-flex align-items-center">
+                    <img src="" class="product-preview me-2 d-none" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                    <select name="items[${rowIdx}][id_barang]" class="form-control form-control-sm product-select w-100" required>
+                        <option value="" data-price="0" data-image="">Select Product</option>
                         @foreach($products as $p)
-                            <option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}">{{ $p->nama_barang }}</option>
+                            <option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}" data-image="{{ $p->foto_barang ? asset('storage/' . $p->foto_barang) : '' }}">{{ $p->nama_barang }}</option>
                         @endforeach
                     </select>
                 </td>
@@ -172,10 +174,21 @@
             let priceInput = row.querySelector('.price');
             let qtyInput = row.querySelector('.qty');
             let subtotalSpan = row.querySelector('.subtotal');
+            let imgPreview = row.querySelector('.product-preview');
 
             select.addEventListener('change', function() {
                 let price = this.options[this.selectedIndex].getAttribute('data-price') || 0;
+                let image = this.options[this.selectedIndex].getAttribute('data-image');
                 priceInput.value = price;
+                
+                if (image) {
+                    imgPreview.src = image;
+                    imgPreview.classList.remove('d-none');
+                } else {
+                    imgPreview.src = '';
+                    imgPreview.classList.add('d-none');
+                }
+                
                 calculate();
             });
 

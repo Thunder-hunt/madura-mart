@@ -49,14 +49,17 @@
                                 <!-- Baris 3: Product & Purchase Amount -->
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label text-xs font-weight-bold" style="color: #4a5568;">Product</label>
-                                    <select name="items[0][id_barang]" id="productSelect" class="form-select form-select-sm" required>
-                                        <option value="">Select Product</option>
-                                        @foreach($products as $p)
-                                            <option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}" data-purchase="{{ $p->harga_beli ?? 0 }}">
-                                                {{ $p->nama_barang }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="d-flex align-items-center">
+                                        <img src="" id="productPreview" class="me-2 d-none" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                        <select name="items[0][id_barang]" id="productSelect" class="form-select form-select-sm w-100" required>
+                                            <option value="" data-price="0" data-purchase="0" data-image="">Select Product</option>
+                                            @foreach($products as $p)
+                                                <option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}" data-purchase="{{ $p->harga_beli ?? 0 }}" data-image="{{ $p->foto_barang ? asset('storage/' . $p->foto_barang) : '' }}">
+                                                    {{ $p->nama_barang }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label text-xs font-weight-bold" style="color: #4a5568;">Purchase Amount</label>
@@ -121,6 +124,7 @@
             const selectedOption = productSelect.options[productSelect.selectedIndex];
             const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
             const purchasePrice = parseFloat(selectedOption.getAttribute('data-purchase')) || 0;
+            const image = selectedOption.getAttribute('data-image');
             const qty = parseFloat(qtyInput.value) || 0;
             
             const total = price * qty;
@@ -131,6 +135,15 @@
             subTotalInput.value = total;
             totalPayInput.value = total;
             sellingMarginInput.value = margin;
+            
+            const imgPreview = document.getElementById('productPreview');
+            if (image) {
+                imgPreview.src = image;
+                imgPreview.classList.remove('d-none');
+            } else {
+                imgPreview.src = '';
+                imgPreview.classList.add('d-none');
+            }
             
             if (total > 0) {
                 bigTotalDisplay.innerText = 'Rp ' + total.toLocaleString('id-ID') + ',-';

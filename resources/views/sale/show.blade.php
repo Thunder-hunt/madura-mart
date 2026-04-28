@@ -53,7 +53,18 @@
                                 <tbody>
                                     @foreach($data->details as $item)
                                         <tr>
-                                            <td class="p-3 text-sm font-weight-bold">{{ $item->product->nama_barang ?? 'N/A' }}</td>
+                                            <td class="p-3 text-sm font-weight-bold">
+                                                <div class="d-flex align-items-center">
+                                                    @if(isset($item->product->foto_barang) && $item->product->foto_barang)
+                                                        <img src="{{ asset('storage/' . $item->product->foto_barang) }}" class="avatar avatar-sm me-3" alt="product image" style="object-fit: cover;">
+                                                    @else
+                                                        <div class="avatar avatar-sm me-3 bg-secondary d-flex justify-content-center align-items-center">
+                                                            <i class="fas fa-box text-white"></i>
+                                                        </div>
+                                                    @endif
+                                                    <span>{{ $item->product->nama_barang ?? 'N/A' }}</span>
+                                                </div>
+                                            </td>
                                             <td class="p-3 text-sm font-weight-bold">Rp {{ number_format($item->harga_jual, 0, ',', '.') }}</td>
                                             <td class="p-3 text-sm font-weight-bold text-center">{{ $item->jumlah_jual }}</td>
                                             <td class="p-3 text-sm font-weight-bold text-end">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
