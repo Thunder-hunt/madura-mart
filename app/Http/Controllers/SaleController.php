@@ -18,7 +18,8 @@ class SaleController extends Controller
     {
         return view('sale.index', [
             'title' => 'Sale',
-            'datas' => Sale::orderBy('created_at', 'desc')->get()
+            'products' => Product::where('stok', '>', 0)->get(),
+            'sale_details' => Sale_Detail::with(['sale', 'product'])->orderBy('created_at', 'desc')->get()
         ]);
     }
 
