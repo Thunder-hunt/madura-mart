@@ -11,7 +11,7 @@
             <div class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-400/20 border border-yellow-400/40 text-yellow-300 text-xs font-semibold mb-3">
                 👑 Admin Panel
             </div>
-            <h1 class="text-2xl md:text-3xl font-bold">Selamat Datang, Admin</h1>
+            <h1 class="text-2xl md:text-3xl font-bold">Selamat Datang, {{ auth()->user()->name }}</h1>
             <p class="text-red-200 text-sm mt-1">Panel kendali Madura Mart — {{ now()->format('l, d F Y') }}</p>
         </div>
         <div class="hidden md:flex items-center justify-center w-20 h-20 bg-yellow-400/20 rounded-full border-2 border-yellow-400/40">

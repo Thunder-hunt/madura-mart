@@ -52,6 +52,7 @@
             </a>
 
             {{-- Nav Links --}}
+            @auth
             <div class="hidden md:flex items-center space-x-1">
                 <a href="{{ route('dashboard.index') }}" class="text-red-100 hover:text-white hover:bg-red-800/40 px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('dashboard.index') ? 'bg-red-800/40 text-white' : '' }}">📊 Dashboard</a>
                 <a href="{{ route('products.index') }}" class="text-red-100 hover:text-white hover:bg-red-800/40 px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('products.index') ? 'bg-red-800/40 text-white' : '' }}">🛒 Produk</a>
@@ -59,11 +60,20 @@
 
             {{-- User Menu --}}
             <div class="flex items-center space-x-3">
-                <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-400 text-yellow-900">
-                    👑 Admin
+                <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                    {{ auth()->user()->isAdmin() ? 'bg-yellow-400 text-yellow-900' : 'bg-white/20 text-white' }}">
+                    {{ auth()->user()->isAdmin() ? '👑 Admin' : '👤 User' }}
                 </span>
-                <span class="text-white text-sm font-medium hidden sm:block truncate max-w-[120px]">Admin</span>
+                <span class="text-white text-sm font-medium hidden sm:block truncate max-w-[120px]">{{ auth()->user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/25 text-white px-3 py-1.5 rounded-md text-sm font-medium transition border border-white/20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        <span class="hidden sm:inline">Logout</span>
+                    </button>
+                </form>
             </div>
+            @endauth
 
         </div>
     </div>

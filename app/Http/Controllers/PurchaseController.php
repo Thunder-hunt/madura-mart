@@ -8,6 +8,7 @@ use App\Models\Purchase_Detail;
 use App\Models\Distributor;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PurchaseController extends Controller
 {
@@ -121,39 +122,61 @@ class PurchaseController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'items' => 'required|array',
+            'no_nota' => 'required|string',
+            'tgl_nota' => 'required|date',
+            'id_distributor' => 'required',
+            'items' => 'required|array|min:1',
             'items.*.id_barang' => 'required',
-            'items.*.harga_beli' => 'required|numeric',
-            'items.*.jumlah_beli' => 'required|numeric',
+            'items.*.harga_beli' => 'required|numeric|min:0',
+            'items.*.jumlah_beli' => 'required|numeric|min:1',
         ]);
 
-        $purchase = Purchase::findOrFail($id);
-        
+        $purchase = Purchase::with('details')->findOrFail($id);
+
         DB::beginTransaction();
         try {
-            $total_bayar = 0;
-            
-            foreach ($request->items as $item) {
-                $detail = Purchase_Detail::where('id_pembelian', $purchase->id)
-                            ->where('id_barang', $item['id_barang'])->first();
-                
-                if ($detail) {
-                    $product = Product::find($item['id_barang']);
-                    if ($product) {
-                        $product->stok -= $detail->jumlah_beli;
-                        $product->stok += $item['jumlah_beli'];
-                        $product->save();
-                    }
-
-                    $detail->harga_beli = $item['harga_beli'];
-                    $detail->jumlah_beli = $item['jumlah_beli'];
-                    $detail->subtotal = $item['harga_beli'] * $item['jumlah_beli'];
-                    $detail->save();
-
-                    $total_bayar += $detail->subtotal;
+            // a. Roll back old stock
+            foreach ($purchase->details as $oldDetail) {
+                $product = Product::find($oldDetail->id_barang);
+                if ($product) {
+                    $product->stok -= $oldDetail->jumlah_beli;
+                    $product->save();
                 }
             }
 
+            // b. Delete old purchase details
+            Purchase_Detail::where('id_pembelian', $purchase->id)->delete();
+
+            // c. Update purchase header
+            $purchase->no_nota = $request->no_nota;
+            $purchase->tgl_nota = $request->tgl_nota;
+            $purchase->id_distributor = $request->id_distributor;
+
+            // d. Recreate purchase details from submitted items
+            $total_bayar = 0;
+            foreach ($request->items as $item) {
+                $subtotal = $item['harga_beli'] * $item['jumlah_beli'];
+
+                Purchase_Detail::create([
+                    'id_pembelian' => $purchase->id,
+                    'id_barang' => $item['id_barang'],
+                    'harga_beli' => $item['harga_beli'],
+                    'margin_jual' => $item['margin_jual'] ?? 0,
+                    'jumlah_beli' => $item['jumlah_beli'],
+                    'subtotal' => $subtotal,
+                ]);
+
+                // e. Increase product stock with new qty
+                $product = Product::find($item['id_barang']);
+                if ($product) {
+                    $product->stok += $item['jumlah_beli'];
+                    $product->save();
+                }
+
+                $total_bayar += $subtotal;
+            }
+
+            // f. Update purchase total
             $purchase->total_bayar = $total_bayar;
             $purchase->save();
 
@@ -171,7 +194,7 @@ class PurchaseController extends Controller
     public function destroy(string $id)
     {
         $purchase = Purchase::findOrFail($id);
-        
+
         DB::beginTransaction();
         try {
             // Revert stock
@@ -182,7 +205,7 @@ class PurchaseController extends Controller
                     $product->save();
                 }
             }
-            
+
             $purchase->delete();
             DB::commit();
             return redirect()->route('purchase.index')->with('hapus', 'Purchase ' . $purchase->no_nota . ' has been deleted and stock reverted.');
@@ -190,5 +213,32 @@ class PurchaseController extends Controller
             DB::rollback();
             return back()->with('error', 'Error: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Confirm password before allowing edit or delete actions.
+     * Validates the password of the currently authenticated user via Hash::check().
+     */
+    public function confirmPassword(Request $request, Purchase $purchase)
+    {
+        $request->validate([
+            'password' => 'required|string',
+            'action'   => 'required|in:edit,delete',
+        ]);
+
+        if (! Hash::check($request->password, auth()->user()->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password is incorrect.',
+            ], 403);
+        }
+
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Password confirmed.',
+            'redirect' => $request->action === 'edit'
+                ? route('purchase.edit', $purchase->id)
+                : null,
+        ]);
     }
 }

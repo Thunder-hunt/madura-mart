@@ -47,13 +47,13 @@
                                                 <a href="{{ route('purchase.show', $data->id) }}" class="me-2">
                                                     <img src="{{ asset('be/assets/img/icon/eye.png') }}" alt="show" width="20" title="Detail">
                                                 </a>
-                                                <a href="#" onclick="edit(event, '{{ route('purchase.edit', $data->id) }}')" class="me-2">
+                                                <button type="button" class="border-0 bg-transparent p-0 me-2" onclick="confirmPurchaseAction('edit', '{{ $data->id }}')">
                                                     <img src="{{ asset('be/assets/img/icon/edit.png') }}" alt="edit" width="20" title="Edit">
-                                                </a>
-                                                <form action="{{ route('purchase.destroy', $data->id) }}" method="POST" class="d-inline">
+                                                </button>
+                                                <form id="delete-form-{{ $data->id }}" action="{{ route('purchase.destroy', $data->id) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="border-0 bg-transparent p-0" onclick="hapus(event, this)">
+                                                    <button type="button" class="border-0 bg-transparent p-0" onclick="confirmPurchaseAction('delete', '{{ $data->id }}')">
                                                         <img src="{{ asset('be/assets/img/icon/trash.png') }}" alt="delete" width="20" title="Delete">
                                                     </button>
                                                 </form>
@@ -76,76 +76,113 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // ─── Flash messages ─────────────────────────────────────────────────────
         @if (session('simpan'))
-            Swal.fire({ icon: 'success', title: 'Success!', text: '{{ session('simpan') }}' });
+            Swal.fire({ icon: 'success', title: 'Success!', text: '{{ session('simpan') }}', confirmButtonText: 'OK' });
         @endif
         @if (session('hapus'))
-            Swal.fire({ icon: 'success', title: 'Deleted!', text: '{{ session('hapus') }}' });
+            Swal.fire({ icon: 'success', title: 'Deleted!', text: '{{ session('hapus') }}', confirmButtonText: 'OK' });
         @endif
         @if (session('error'))
-            Swal.fire({ icon: 'error', title: 'Error!', text: '{{ session('error') }}' });
+            Swal.fire({ icon: 'error', title: 'Error!', text: '{{ session('error') }}', confirmButtonText: 'OK' });
         @endif
 
-        function promptPassword(callback) {
-            Swal.fire({
+        // ─── Password-protected Edit & Delete ───────────────────────────────────
+        async function confirmPurchaseAction(action, purchaseId) {
+            // Step 1: Ask for password
+            const { value: password, isConfirmed } = await Swal.fire({
                 title: 'Password required!',
-                text: "Write your boss's password:",
+                text: 'Enter your account password to continue.',
                 input: 'password',
                 inputPlaceholder: 'Enter password',
                 showCancelButton: true,
                 confirmButtonColor: '#d1008c',
-                cancelButtonColor: '#ffffff',
-                customClass: {
-                    cancelButton: 'btn btn-light shadow-sm border text-dark',
-                    confirmButton: 'btn btn-primary'
-                },
+                cancelButtonColor: '#aaa',
                 confirmButtonText: 'OK',
-                cancelButtonText: 'CANCEL'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    if (result.value === 'kepalaperpus' || result.value === 'admin123') { 
-                        callback();
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Oops!', text: 'Incorrect password!' });
-                    }
+                cancelButtonText: 'Cancel',
+                inputValidator: (value) => {
+                    if (!value) return 'Password cannot be empty!';
                 }
             });
-        }
 
-        function hapus(e, el) {
-            e.preventDefault();
-            promptPassword(() => {
-                Swal.fire({
-                    title: 'Are you sure want to delete?',
-                    text: "Your will not be able to recover this data!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#ffffff',
-                    customClass: { cancelButton: 'btn btn-light shadow-sm border text-dark' },
-                    confirmButtonText: 'YES, DELETE IT!',
-                    cancelButtonText: 'CANCEL'
-                }).then((res) => {
-                    if (res.isConfirmed) {
-                        el.closest("form").submit();
-                    }
+            if (!isConfirmed || !password) return;
+
+            // Step 2: Verify password on server
+            try {
+                const response = await fetch(`/purchase/${purchaseId}/confirm-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ password: password, action: action })
                 });
-            });
-        }
 
-        function edit(e, url) {
-            e.preventDefault();
-            promptPassword(() => {
-                Swal.fire({
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    // Step 3: Wrong password
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Access denied',
+                        text: result.message || 'Password is incorrect.'
+                    });
+                    return;
+                }
+
+                // Step 4: Password correct — show success then confirm action
+                await Swal.fire({
                     icon: 'success',
                     title: 'Nice!',
-                    text: 'Your password is correct!',
+                    text: 'Your password is correct.',
                     confirmButtonColor: '#d1008c',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = url;
+                    confirmButtonText: 'OK',
+                    timer: 1500,
+                    timerProgressBar: true
                 });
-            });
+
+                if (action === 'edit') {
+                    // Step 5a: Confirm edit
+                    const editConfirm = await Swal.fire({
+                        icon: 'question',
+                        title: 'Edit this purchase?',
+                        text: 'Do you want to edit this purchase?',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d1008c',
+                        cancelButtonColor: '#aaa',
+                        confirmButtonText: 'Yes, edit it',
+                        cancelButtonText: 'Cancel'
+                    });
+
+                    if (editConfirm.isConfirmed) {
+                        window.location.href = result.redirect;
+                    }
+                } else if (action === 'delete') {
+                    // Step 5b: Confirm delete
+                    const deleteConfirm = await Swal.fire({
+                        icon: 'warning',
+                        title: 'Delete this purchase?',
+                        text: 'This action will reverse the stock and cannot be undone.',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#aaa',
+                        confirmButtonText: 'Yes, delete it',
+                        cancelButtonText: 'Cancel'
+                    });
+
+                    if (deleteConfirm.isConfirmed) {
+                        document.getElementById('delete-form-' + purchaseId).submit();
+                    }
+                }
+
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Error',
+                    text: 'Could not reach the server. Please try again.'
+                });
+            }
         }
     </script>
 @endsection

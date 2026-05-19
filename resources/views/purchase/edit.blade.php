@@ -33,17 +33,21 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label class="form-label text-xs font-weight-bold">Invoice No</label>
-                                <input type="text" name="no_nota" class="form-control" value="{{ old('no_nota', $data->no_nota) }}" readonly>
+                                <label class="form-label text-xs font-weight-bold">No. Nota</label>
+                                <input type="text" name="no_nota" class="form-control" value="{{ old('no_nota', $data->no_nota) }}" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label text-xs font-weight-bold">Invoice Date</label>
-                                <input type="date" name="tgl_nota" class="form-control" value="{{ old('tgl_nota', $data->tgl_nota) }}" readonly>
+                                <label class="form-label text-xs font-weight-bold">Date</label>
+                                <input type="date" name="tgl_nota" class="form-control" value="{{ old('tgl_nota', $data->tgl_nota) }}" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label text-xs font-weight-bold">Distributor</label>
-                                <input type="hidden" name="id_distributor" value="{{ $data->id_distributor }}">
-                                <input type="text" class="form-control" value="{{ $data->distributor->name_distributor ?? 'N/A' }}" readonly>
+                                <select name="id_distributor" class="form-control" required>
+                                    <option value="">Select Distributor</option>
+                                    @foreach($distributors as $d)
+                                        <option value="{{ $d->id }}" {{ old('id_distributor', $data->id_distributor) == $d->id ? 'selected' : '' }}>{{ $d->name_distributor }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -52,8 +56,9 @@
                 <!-- Items -->
                 <div class="col-md-8">
                     <div class="card mb-4">
-                        <div class="card-header pb-0">
+                        <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                             <h6>Edit Purchases Data</h6>
+                            <button type="button" class="btn btn-dark btn-sm" id="addItem">Add Row</button>
                         </div>
                         <div class="card-body px-0 pt-0 pb-2">
                             <div class="table-responsive p-0">
@@ -64,14 +69,19 @@
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Purchase Price</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Quantity</th>
                                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Subtotal</th>
+                                            <th class="text-secondary opacity-7"></th>
                                         </tr>
                                     </thead>
                                     <tbody id="itemBody">
                                         @foreach($data->details as $index => $detail)
                                         <tr>
                                             <td class="p-2">
-                                                <input type="hidden" name="items[{{ $index }}][id_barang]" value="{{ $detail->id_barang }}">
-                                                <input type="text" class="form-control form-control-sm" value="{{ $detail->product->nama_barang ?? 'N/A' }}" readonly>
+                                                <select name="items[{{ $index }}][id_barang]" class="form-control form-control-sm product-select" required>
+                                                    <option value="" data-price="0">Select Product</option>
+                                                    @foreach($products as $p)
+                                                        <option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}" {{ $detail->id_barang == $p->id ? 'selected' : '' }}>{{ $p->nama_barang }}</option>
+                                                    @endforeach
+                                                </select>
                                             </td>
                                             <td class="p-2">
                                                 <input type="number" name="items[{{ $index }}][harga_beli]" class="form-control form-control-sm price" required value="{{ $detail->harga_beli }}">
@@ -82,14 +92,19 @@
                                             <td class="p-2">
                                                 <span class="text-xs font-weight-bold subtotal">Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</span>
                                             </td>
+                                            <td class="p-2 text-center">
+                                                @if($index > 0)
+                                                <button type="button" class="btn btn-link text-danger mb-0 p-0 remove-row"><i class="fa fa-trash"></i></button>
+                                                @endif
+                                            </td>
                                         </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot>
                                         <tr>
                                             <td colspan="3" class="text-end text-sm font-weight-bold p-3">Total Payment</td>
-                                            <td colspan="1" class="text-sm font-weight-bolder p-3">
-                                                <input type="text" id="grandTotalInput" class="form-control form-control-sm border-0 bg-light fw-bold fs-6" readonly value="Rp {{ number_format($data->total_bayar, 0, ',', '.') }}">
+                                            <td colspan="2" class="text-sm font-weight-bolder p-3">
+                                                <span id="grandTotal">Rp {{ number_format($data->total_bayar, 0, ',', '.') }}</span>
                                             </td>
                                         </tr>
                                     </tfoot>
@@ -107,24 +122,70 @@
     </div>
 
     <script>
-        function attachListeners() {
-            const rows = document.querySelectorAll('#itemBody tr');
-            rows.forEach(row => {
-                let priceInput = row.querySelector('.price');
-                let qtyInput = row.querySelector('.qty');
-                let subtotalSpan = row.querySelector('.subtotal');
+        let rowIdx = {{ count($data->details) }};
 
-                const calculate = () => {
-                    let price = parseFloat(priceInput.value) || 0;
-                    let qty = parseFloat(qtyInput.value) || 0;
-                    let subtotal = price * qty;
-                    subtotalSpan.innerText = 'Rp ' + subtotal.toLocaleString('id-ID');
+        document.getElementById('addItem').addEventListener('click', function() {
+            let tbody = document.getElementById('itemBody');
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="p-2">
+                    <select name="items[${rowIdx}][id_barang]" class="form-control form-control-sm product-select" required>
+                        <option value="" data-price="0">Select Product</option>
+                        @foreach($products as $p)
+                            <option value="{{ $p->id }}" data-price="{{ $p->harga_jual }}">{{ $p->nama_barang }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td class="p-2">
+                    <input type="number" name="items[${rowIdx}][harga_beli]" class="form-control form-control-sm price" required placeholder="0">
+                </td>
+                <td class="p-2">
+                    <input type="number" name="items[${rowIdx}][jumlah_beli]" class="form-control form-control-sm qty" required placeholder="0">
+                </td>
+                <td class="p-2">
+                    <span class="text-xs font-weight-bold subtotal">Rp 0</span>
+                </td>
+                <td class="p-2 text-center">
+                    <button type="button" class="btn btn-link text-danger mb-0 p-0 remove-row"><i class="fa fa-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            rowIdx++;
+            attachListeners(tr);
+        });
+
+        function attachListeners(row) {
+            let select = row.querySelector('.product-select');
+            let priceInput = row.querySelector('.price');
+            let qtyInput = row.querySelector('.qty');
+            let subtotalSpan = row.querySelector('.subtotal');
+
+            if (select) {
+                select.addEventListener('change', function() {
+                    let price = this.options[this.selectedIndex].getAttribute('data-price') || 0;
+                    priceInput.value = price;
+                    calculate();
+                });
+            }
+
+            const calculate = () => {
+                let price = parseFloat(priceInput.value) || 0;
+                let qty = parseFloat(qtyInput.value) || 0;
+                let subtotal = price * qty;
+                subtotalSpan.innerText = 'Rp ' + subtotal.toLocaleString('id-ID');
+                calculateGrandTotal();
+            };
+
+            priceInput.addEventListener('input', calculate);
+            qtyInput.addEventListener('input', calculate);
+
+            let removeBtn = row.querySelector('.remove-row');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function() {
+                    row.remove();
                     calculateGrandTotal();
-                };
-
-                priceInput.addEventListener('input', calculate);
-                qtyInput.addEventListener('input', calculate);
-            });
+                });
+            }
         }
 
         function calculateGrandTotal() {
@@ -134,9 +195,10 @@
                 let text = span.innerText.replace('Rp ', '').replace(/\./g, '').replace(/,/g, '');
                 grand += parseFloat(text) || 0;
             });
-            document.getElementById('grandTotalInput').value = 'Rp ' + grand.toLocaleString('id-ID');
+            document.getElementById('grandTotal').innerText = 'Rp ' + grand.toLocaleString('id-ID');
         }
 
-        document.addEventListener('DOMContentLoaded', attachListeners);
+        // Attach to all existing rows
+        document.querySelectorAll('#itemBody tr').forEach(row => attachListeners(row));
     </script>
 @endsection
