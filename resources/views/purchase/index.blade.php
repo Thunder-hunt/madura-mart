@@ -47,6 +47,9 @@
                                                 <a href="{{ route('purchase.show', $data->id) }}" class="me-2">
                                                     <img src="{{ asset('be/assets/img/icon/eye.png') }}" alt="show" width="20" title="Detail">
                                                 </a>
+                                                <a href="#" onclick="edit(event, '{{ route('purchase.edit', $data->id) }}')" class="me-2">
+                                                    <img src="{{ asset('be/assets/img/icon/edit.png') }}" alt="edit" width="20" title="Edit">
+                                                </a>
                                                 <form action="{{ route('purchase.destroy', $data->id) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
@@ -83,18 +86,65 @@
             Swal.fire({ icon: 'error', title: 'Error!', text: '{{ session('error') }}' });
         @endif
 
-        function hapus(e, el) {
-            e.preventDefault();
+        function promptPassword(callback) {
             Swal.fire({
-                title: 'Are you sure?',
-                text: "Deleting this will revert product stock! This action cannot be undone.",
-                icon: 'warning',
+                title: 'Password required!',
+                text: "Write your boss's password:",
+                input: 'password',
+                inputPlaceholder: 'Enter password',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
+                confirmButtonColor: '#d1008c',
+                cancelButtonColor: '#ffffff',
+                customClass: {
+                    cancelButton: 'btn btn-light shadow-sm border text-dark',
+                    confirmButton: 'btn btn-primary'
+                },
+                confirmButtonText: 'OK',
+                cancelButtonText: 'CANCEL'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    el.closest("form").submit();
+                    if (result.value === 'kepalaperpus' || result.value === 'admin123') { 
+                        callback();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Oops!', text: 'Incorrect password!' });
+                    }
                 }
+            });
+        }
+
+        function hapus(e, el) {
+            e.preventDefault();
+            promptPassword(() => {
+                Swal.fire({
+                    title: 'Are you sure want to delete?',
+                    text: "Your will not be able to recover this data!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#ffffff',
+                    customClass: { cancelButton: 'btn btn-light shadow-sm border text-dark' },
+                    confirmButtonText: 'YES, DELETE IT!',
+                    cancelButtonText: 'CANCEL'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        el.closest("form").submit();
+                    }
+                });
+            });
+        }
+
+        function edit(e, url) {
+            e.preventDefault();
+            promptPassword(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Nice!',
+                    text: 'Your password is correct!',
+                    confirmButtonColor: '#d1008c',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = url;
+                });
             });
         }
     </script>

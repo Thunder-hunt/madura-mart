@@ -11,7 +11,7 @@
             <div class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-400/20 border border-yellow-400/40 text-yellow-300 text-xs font-semibold mb-3">
                 👑 Admin Panel
             </div>
-            <h1 class="text-2xl md:text-3xl font-bold">Selamat Datang, {{ auth()->user()->name }}</h1>
+            <h1 class="text-2xl md:text-3xl font-bold">Selamat Datang, Admin</h1>
             <p class="text-red-200 text-sm mt-1">Panel kendali Madura Mart — {{ now()->format('l, d F Y') }}</p>
         </div>
         <div class="hidden md:flex items-center justify-center w-20 h-20 bg-yellow-400/20 rounded-full border-2 border-yellow-400/40">
@@ -79,12 +79,12 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h2 class="text-base font-bold text-gray-800 mb-4">⚡ Aksi Cepat</h2>
         <div class="space-y-2">
-            <a href="{{ route('admin.users') }}"   class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition group">
+            <a href="{{ route('users.index') }}"   class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition group">
                 <span class="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-600 transition-colors text-blue-600 group-hover:text-white text-sm">👥</span>
                 <div><p class="text-sm font-medium text-gray-700">Kelola Users</p><p class="text-xs text-gray-400">Lihat semua pengguna</p></div>
                 <svg class="w-4 h-4 text-gray-300 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>
-            <a href="{{ route('admin.orders') }}"  class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition group">
+            <a href="{{ route('order.index') }}"  class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition group">
                 <span class="w-9 h-9 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-500 transition-colors text-yellow-600 group-hover:text-white text-sm">📦</span>
                 <div><p class="text-sm font-medium text-gray-700">Kelola Pesanan</p><p class="text-xs text-gray-400">Manajemen order masuk</p></div>
                 <svg class="w-4 h-4 text-gray-300 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -101,7 +101,7 @@
     <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-base font-bold text-gray-800">👥 User Terbaru</h2>
-            <a href="{{ route('admin.users') }}" class="text-sm text-red-600 hover:underline font-medium">Lihat semua →</a>
+            <a href="{{ route('users.index') }}" class="text-sm text-red-600 hover:underline font-medium">Lihat semua →</a>
         </div>
         @if($latestUsers->isEmpty())
             <div class="text-center py-8 text-gray-400">

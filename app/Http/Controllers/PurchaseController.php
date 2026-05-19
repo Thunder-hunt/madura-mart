@@ -106,7 +106,13 @@ class PurchaseController extends Controller
      */
     public function edit(string $id)
     {
-        // Typically purchases are not edited for audit reasons, but I'll leave it empty or implement later if requested.
+        $purchase = Purchase::with(['distributor', 'details.product'])->findOrFail($id);
+        return view('purchase.edit', [
+            'title' => 'Purchase',
+            'data' => $purchase,
+            'distributors' => Distributor::all(),
+            'products' => Product::all()
+        ]);
     }
 
     /**
@@ -114,7 +120,49 @@ class PurchaseController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.id_barang' => 'required',
+            'items.*.harga_beli' => 'required|numeric',
+            'items.*.jumlah_beli' => 'required|numeric',
+        ]);
+
+        $purchase = Purchase::findOrFail($id);
+        
+        DB::beginTransaction();
+        try {
+            $total_bayar = 0;
+            
+            foreach ($request->items as $item) {
+                $detail = Purchase_Detail::where('id_pembelian', $purchase->id)
+                            ->where('id_barang', $item['id_barang'])->first();
+                
+                if ($detail) {
+                    $product = Product::find($item['id_barang']);
+                    if ($product) {
+                        $product->stok -= $detail->jumlah_beli;
+                        $product->stok += $item['jumlah_beli'];
+                        $product->save();
+                    }
+
+                    $detail->harga_beli = $item['harga_beli'];
+                    $detail->jumlah_beli = $item['jumlah_beli'];
+                    $detail->subtotal = $item['harga_beli'] * $item['jumlah_beli'];
+                    $detail->save();
+
+                    $total_bayar += $detail->subtotal;
+                }
+            }
+
+            $purchase->total_bayar = $total_bayar;
+            $purchase->save();
+
+            DB::commit();
+            return redirect()->route('purchase.index')->with('simpan', 'Purchase ' . $purchase->no_nota . ' has been successfully updated!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Error: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**

@@ -46,7 +46,6 @@
                                                 <a href="{{ route('users.edit', $data->id) }}" class="me-2">
                                                     <img src="{{ asset('be/assets/img/icon/edit.png') }}" alt="edit" width="20">
                                                 </a>
-                                                @if($data->id !== auth()->id())
                                                 <form action="{{ route('users.destroy', $data->id) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     @method('DELETE')
@@ -54,7 +53,6 @@
                                                         <img src="{{ asset('be/assets/img/icon/trash.png') }}" alt="delete" width="20">
                                                     </button>
                                                 </form>
-                                                @endif
                                             </td>
                                             
                                             <td class="text-xs font-weight-bold mb-0">{{ $data->name }}</td>
