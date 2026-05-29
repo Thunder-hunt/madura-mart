@@ -50,11 +50,11 @@
                                         @csrf
                                         <label>Email</label>
                                         <div class="mb-3">
-                                            <input type="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="email-addon" required autofocus>
+                                            <input type="email" name="email" value="{{ old('email', 'admin@maduramart.com') }}" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="email-addon" required autofocus>
                                         </div>
                                         <label>Password</label>
                                         <div class="mb-3">
-                                            <input type="password" name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" required>
+                                            <input type="password" name="password" value="Admin123!" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" required>
                                         </div>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" name="remember" id="rememberMe">
@@ -73,7 +73,7 @@
                                     
                                     <div class="mt-2 text-start p-3 bg-light rounded shadow-sm">
                                         <p class="text-xs font-weight-bold text-dark mb-1">Demo Admin Akun:</p>
-                                        <p class="text-xs mb-0">Email: <code>admin@123.com</code></p>
+                                        <p class="text-xs mb-0">Email: <code>admin@maduramart.com</code></p>
                                         <p class="text-xs mb-0">Password: <code>Admin123!</code></p>
                                     </div>
                                 </div>
