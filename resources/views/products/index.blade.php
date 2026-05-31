@@ -203,6 +203,8 @@
     </div>
     <form action="" method="POST" id="frm">
         @csrf
+        @method('DELETE')
+    </form>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         @if (session('simpan'))
@@ -235,7 +237,9 @@
                 closeOnConfirm: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    el.closest("form").submit();
+                    const form = document.getElementById('frm');
+                    form.action = el.getAttribute('data-url');
+                    form.submit();
                 }
             });
         }
